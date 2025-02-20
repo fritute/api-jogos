@@ -13,20 +13,20 @@ async function insertJogo (jogo){
 
     let sql = `insert into tbl_jogo (
                                         nome,
-                                        data_lancamento,
+                                        data_lacamento,
                                         versao,
                                         tamanho,
                                         descricao,
                                         foto_capa,
                                         link                                
                                     ) values (
-                                        ${jogo.nome},
-                                        ${jogo.data_lancamento},
-                                        ${jogo.versao},
-                                        ${jogo.tamanho},
-                                        ${jogo.descricao},
-                                        ${jogo.foto_capa},
-                                        ${jogo.link} 
+                                        '${jogo.nome}',
+                                        '${jogo.data_lacamento}',
+                                        '${jogo.versao}',
+                                        '${jogo.tamanho}',
+                                        '${jogo.descricao}',
+                                        '${jogo.foto_capa}',
+                                        '${jogo.link}'
                                     )`
 
     //executar script no BD
