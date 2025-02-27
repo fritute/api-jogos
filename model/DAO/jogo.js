@@ -70,8 +70,19 @@ try{
 }
 
 // filtro pelo ID
-async function selectByIdJogo (){
+async function selectByIdJogo (id){
+    try {
+        let sql = `select * from tbl_jogo where id = ${id}`
+        let result = await prisma.$executeRawUnsafe(sql)
+        if(result)
+            return result
+        else
+        return false
+       
 
+    } catch (error) {
+        return false
+    }
 }
 
 module.exports = {

@@ -54,7 +54,7 @@ async function listarJogo() {
         //chama a função para retornar os dados do jogo
     let resultJogo = await JogoDAO.selectAllJogo()
 
-    if(resultJogo != false){
+    if(resultJogo != false || typeof(resultJogo)== 'object'){
 
     //Cria um objeto do tipo JSON para retornar a lista de jogos
     if(resultJogo.length > 0){
@@ -77,8 +77,12 @@ async function listarJogo() {
 
     
 }
-async function buscarJogo(jogo) {
-    
+async function buscarJogo(id) {
+    try {
+        let jogo = await JogoDAO.selectByIdJogo
+    } catch (error) {
+        
+    }
 }
 
 function corrigirNotNullVarchar(text, letras){
