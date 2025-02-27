@@ -9,7 +9,11 @@ const MESSAGE = require('../../modulo/config.js')
 //  Import do DAO para realizar o CRUD no BD
 const JogoDAO = require('../../model/DAO/jogo.js')
 //Função inserir um novo jogo
-const inserirJogo = async function(jogo){
+const inserirJogo = async function(jogo, contentType
+){
+    try{
+
+    if(contentType == 'application/json'){
     if(
         jogo.nome == undefined || jogo.nome == '' || jogo.nome == null || jogo.nome.length > 80 ||
         jogo.data_lacamento == undefined || jogo.data_lacamento == '' || jogo.data_lacamento == null || jogo.data_lacamento.length > 10 ||
@@ -28,8 +32,14 @@ const inserirJogo = async function(jogo){
         if(resultJogo)
             return MESSAGE.SUCCESS_CREATED_ITEM //201
         else
-            return MESSAGE.ERROR_INTERNAL_SERVER //500
+            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
     }
+}else{
+    return MESSAGE.ERROR_CONTENT_TYPE
+}
+}catch(error){
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
+}
     
 }
 async function atualizarJogo(jogo) {
@@ -38,7 +48,33 @@ async function atualizarJogo(jogo) {
 async function excluirJogo(jogo) {
     
 }
-async function listarJogo(jogo) {
+async function listarJogo() {
+    try {
+        let dadosJogos = {}
+        //chama a função para retornar os dados do jogo
+    let resultJogo = await JogoDAO.selectAllJogo()
+
+    if(resultJogo != false){
+
+    //Cria um objeto do tipo JSON para retornar a lista de jogos
+    if(resultJogo.length > 0){
+        dadosJogos.status = true
+        dadosJogos.status_code = 200
+        dadosJogos.items = resultJogo.length
+        dadosJogos.games = resultJogo
+
+        return dadosJogos //200
+    }else{
+        return MESSAGE.ERROR_NOT_FOUND //404
+
+    }
+    }else{
+        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL//500
+    }
+    } catch (error) {
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER//500
+    }
+
     
 }
 async function buscarJogo(jogo) {
