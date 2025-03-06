@@ -11,42 +11,52 @@ const JogoDAO = require('../../model/DAO/jogo.js')
 //Função inserir um novo jogo
 const inserirJogo = async function(jogo, contentType
 ){
-    try{
+    try {
+        if (contentType == 'application/json') {
+            if (
+                jogo.nome == undefined || jogo.nome == '' || jogo.nome == null || jogo.nome.length > 80 ||
+                jogo.data_lacamento == undefined || jogo.data_lacamento == '' || jogo.data_lacamento == null || jogo.data_lacamento.length > 10 ||
+                jogo.versao == undefined || jogo.versao == '' || jogo.versao == null || jogo.versao.length > 10 ||
+                jogo.tamanho == undefined || jogo.tamanho.length > 10 ||
+                jogo.descricao == undefined ||
+                jogo.foto_capa == undefined || jogo.foto_capa.length > 200 ||
+                jogo.link == undefined || jogo.link.length > 200
+            ) {
+                return MESSAGE.ERROR_REQUIRED_FIELDS // 400
+            } else {
+                // Encaminha os dados do novo jogo para ser inserido no BD
+                let resultJogo = await JogoDAO.insertJogo(jogo)
 
-    if(contentType == 'application/json'){
-    if(
-        jogo.nome == undefined || jogo.nome == '' || jogo.nome == null || jogo.nome.length > 80 ||
-        jogo.data_lacamento == undefined || jogo.data_lacamento == '' || jogo.data_lacamento == null || jogo.data_lacamento.length > 10 ||
-        jogo.versao == undefined || jogo.versao == '' || jogo.versao == null || jogo.versao.length > 10 ||
-        jogo.tamanho == undefined || jogo.tamanho.length > 10 ||
-        jogo.descricao == undefined ||
-        jogo.foto_capa == undefined || jogo.foto_capa.length > 200 ||
-        jogo.link == undefined || jogo.nome.length > 200
-
-    ){
-        return MESSAGE.ERROR_REQUIRED_FIELDS // 400
-    }else{
-        //encaminha os dados do novo jogo para ser inserido no BD
-        let resultJogo = await JogoDAO.insertJogo(jogo)
-
-        if(resultJogo)
-            return MESSAGE.SUCCESS_CREATED_ITEM //201
-        else
-            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+                if (resultJogo)
+                    return MESSAGE.SUCCESS_CREATED_ITEM // 201
+                else
+                    return MESSAGE.ERROR_INTERNAL_SERVER_MODEL // 500
+            }
+        } else {
+            return MESSAGE.ERROR_CONTENT_TYPE // 415
+        }
+    } catch (error) {
+        console.error(`Erro ao inserir jogo:`, error) // Adicione log para depuração
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500
     }
-}else{
-    return MESSAGE.ERROR_CONTENT_TYPE
-}
-}catch(error){
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER
-}
     
 }
 async function atualizarJogo(jogo) {
     
 }
-async function excluirJogo(jogo) {
-    
+async function excluirJogo(id) {
+    try {
+        let result = await JogoDAO.deleteJogo(id)
+
+        if (result) {
+            return MESSAGE.SUCCESS_DELETED_ITEM // 200
+        } else {
+            return MESSAGE.ERROR_DELETE_ITEM // 404
+        }
+    } catch (error) {
+        console.error(`Erro ao excluir jogo com ID ${id}:`, error) // Adicione log para depuração
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500
+    }
 }
 async function listarJogo() {
     try {
@@ -79,9 +89,20 @@ async function listarJogo() {
 }
 async function buscarJogo(id) {
     try {
-        let jogo = await JogoDAO.selectByIdJogo
+        let dadosJogo = {}
+        let jogo = await JogoDAO.selectByIdJogo(id)
+
+        if (jogo) {
+            dadosJogo.status = true
+            dadosJogo.status_code = 200
+            dadosJogo.jogo = jogo
+
+            return dadosJogo
+        } else {
+            return MESSAGE.ERROR_NOT_FOUND // 404
+        }
     } catch (error) {
-        
+        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER // 500
     }
 }
 

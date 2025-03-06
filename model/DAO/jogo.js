@@ -8,13 +8,9 @@ Versão: 1.0
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 // inseri
-async function insertJogo (jogo){
-    try{
-
-   
- 
-
-    let sql = `insert into tbl_jogo (
+async function insertJogo(jogo) {
+    try {
+        let sql = `INSERT INTO tbl_jogo (
                                         nome,
                                         data_lacamento,
                                         versao,
@@ -22,7 +18,7 @@ async function insertJogo (jogo){
                                         descricao,
                                         foto_capa,
                                         link                                
-                                    ) values (
+                                    ) VALUES (
                                         '${jogo.nome}',
                                         '${jogo.data_lacamento}',
                                         '${jogo.versao}',
@@ -32,14 +28,14 @@ async function insertJogo (jogo){
                                         '${jogo.link}'
                                     )`
 
-    //executar script no BD
-    
-    let result = await prisma.$executeRawUnsafe(sql)
+        // Executar script no BD
+        let result = await prisma.$executeRawUnsafe(sql)
 
-    return result ? true : false
-}catch (error){
-    return false    
-}
+        return result ? true : false
+    } catch (error) {
+        console.error(`Erro ao inserir jogo:`, error) // Adicione log para depuração
+        return false    
+    }
 }
 
 // atualizar
@@ -48,8 +44,17 @@ async function updateJogo (){
 }
 
 // deletar
-async function deleteJogo (){
+async function deleteJogo(id) {
+    try {
+        let sql = `DELETE FROM tbl_jogo WHERE id = ${id}`
+        let result = await prisma.$executeRawUnsafe(sql)
 
+      
+        return result > 0 ? true : false
+    } catch (error) {
+        console.error(`Erro ao excluir jogo com ID ${id}:`, error) // Adicione log para depuração
+        return false
+    }
 }
 
 // select de todos os jogos
@@ -73,13 +78,11 @@ try{
 async function selectByIdJogo (id){
     try {
         let sql = `select * from tbl_jogo where id = ${id}`
-        let result = await prisma.$executeRawUnsafe(sql)
-        if(result)
-            return result
+        let result = await prisma.$queryRawUnsafe(sql)
+        if(result.length > 0) 
+            return result[0] 
         else
-        return false
-       
-
+            return false
     } catch (error) {
         return false
     }

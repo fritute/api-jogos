@@ -45,10 +45,14 @@ app.use((request,response,next) => {
     next()
 })
 //EndPoint para inserir um jogo no BD 
-app.post('/v1/controle-jogos/jogo',cors(), bodyParserJSON, async function(request,response) {
-    //recebe o content type para validar o tipo de dados da requisição
+app.post('/v1/controle-jogos/jogo', cors(), bodyParserJSON, async function(request, response) {
+    // Recebe o content type para validar o tipo de dados da requisição
     let contentType = request.headers['content-type']
-    
+    let jogo = request.body
+
+    let resultJogo = await controllerJogo.inserirJogo(jogo, contentType)
+    response.status(resultJogo.status_code)
+    response.json(resultJogo)
 })
 
  //chama a função para listar os jogos
@@ -58,6 +62,17 @@ app.post('/v1/controle-jogos/jogo',cors(), bodyParserJSON, async function(reques
     response.status(resultJogo.status_code)
     response.json(resultJogo)
     
+})
+app.get('/v1/controle-jogos/jogo/:id', cors(), async function(request, response) {
+    const id = parseInt(request.params.id)
+    let resultJogo = await controllerJogo.buscarJogo(id)
+    response.json(resultJogo)
+})
+app.delete('/v1/controle-jogos/jogo/:id', cors(), async function(request, response) {
+    const id = parseInt(request.params.id)
+    let resultJogo = await controllerJogo.excluirJogo(id)
+    response.status(resultJogo.status_code)
+    response.json(resultJogo)
 })
 
 app.listen(8080, function(){
