@@ -39,8 +39,27 @@ async function insertJogo(jogo) {
 }
 
 // atualizar
-async function updateJogo (){
+const updateJogo = async function(jogo){
+    try {
+        let sql = `UPDATE tbl_jogo SET 
+                                         nome = '${jogo.nome}',
+                                        data_lacamento = '${jogo.data_lacamento}',
+                                        versao = '${jogo.versao}',
+                                        tamanho = '${jogo.tamanho}',
+                                        descricao = '${jogo.descricao}',
+                                        foto_capa = '${jogo.foto_capa}',
+                                        link = '${jogo.link}'
+                                        WHERE id = ${jogo.id}`
 
+        let result = await prisma.$executeRawUnsafe(sql)
+
+        if(result)
+            return true
+        else
+            return false
+    } catch (error) {
+        return false
+    }
 }
 
 // deletar
@@ -52,7 +71,7 @@ async function deleteJogo(id) {
       
         return result > 0 ? true : false
     } catch (error) {
-        console.error(`Erro ao excluir jogo com ID ${id}:`, error) // Adicione log para depuração
+        console.error(`Erro ao excluir jogo com ID ${id}:`) 
         return false
     }
 }

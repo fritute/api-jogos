@@ -70,7 +70,29 @@ app.get('/v1/controle-jogos/jogo/:id', cors(), async function(request, response)
 })
 app.delete('/v1/controle-jogos/jogo/:id', cors(), async function(request, response) {
     const id = parseInt(request.params.id)
+
+    if (isNaN(id)) {
+        return response.status(400).json({ status: false, status_code: 400, message: "ID inválido. Deve ser um número." })
+    }
+
     let resultJogo = await controllerJogo.excluirJogo(id)
+    response.status(resultJogo.status_code)
+    response.json(resultJogo)
+})
+app.put('/v1/controle-jogos/jogo/:id', cors(), bodyParserJSON, async function(request, response) {
+    // Recebe o content type para validar o tipo de dados da requisição
+    let contentType = request.headers['content-type']
+    // Recebe o id do jogo
+    let idJogo = parseInt(request.params.id)
+    // Recebe os dados do jogo encaminhado do body da requisição
+    let dadosBody = request.body
+
+    // Validação para garantir que o ID é um número
+    if (isNaN(idJogo)) {
+        return response.status(400).json({ status: false, status_code: 400, message: "ID inválido. Deve ser um número." })
+    }
+
+    let resultJogo = await controllerJogo.atualizarJogo(dadosBody, idJogo, contentType)
     response.status(resultJogo.status_code)
     response.json(resultJogo)
 })

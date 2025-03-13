@@ -16,7 +16,7 @@ const ERROR_DELETE_ITEM = {status: false, status_code: 404, message: "Não foi p
 /******************************MENSAGENS DE ACERTO */
 const SUCCESS_CREATED_ITEM   = {status: true, status_code: 201, message: "Item Criado com Sucesso" }
 const SUCCESS_DELETED_ITEM   = {status: true, status_code: 200, message: "Item Deletado com Sucesso" }
-
+ const SUCCESS_UPDATED_ITEM = {status: true, status_code: 200, message: "Item Atualizado com Sucesso" }
 
 
 module.exports = {
@@ -27,5 +27,6 @@ module.exports = {
     ERROR_CONTENT_TYPE,
     ERROR_NOT_FOUND,
     SUCCESS_DELETED_ITEM,
-    ERROR_DELETE_ITEM
+    ERROR_DELETE_ITEM,
+    SUCCESS_UPDATED_ITEM
 }
