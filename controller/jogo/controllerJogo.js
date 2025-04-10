@@ -152,6 +152,7 @@ async function buscarJogo(id) {
     }
 }
 
+    
 function corrigirNotNullVarchar(text, letras){
     if(text == undefined || text == "" || text == null || text.length > letras){
         return false

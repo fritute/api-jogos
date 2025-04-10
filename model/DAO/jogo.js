@@ -61,6 +61,7 @@ const updateJogo = async function(jogo){
         return false
     }
 }
+async function CriarUsuario() {}
 
 // deletar
 async function deleteJogo(id) {
