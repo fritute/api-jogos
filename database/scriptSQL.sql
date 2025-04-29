@@ -98,7 +98,13 @@ CREATE TABLE tbl_empresa_jogo (
         FOREIGN KEY (id_empresa)
         REFERENCES tbl_empresa (id_empresa)
 );
-
+CREATE TABLE tbl_usuario_jogo (
+    id_usuario_jogo INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    id_usuario INT NOT NULL,
+    id_jogo INT NOT NULL,
+    CONSTRAINT fk_usuario FOREIGN KEY (id_usuario) REFERENCES tbl_usuario (id_usuario),
+    CONSTRAINT fk_jogo FOREIGN KEY (id_jogo) REFERENCES tbl_jogo (id)
+);
 
 
 

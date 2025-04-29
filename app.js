@@ -31,7 +31,8 @@ const bodyParser = require('body-parser')
 const controllerJogo = require('./controller/jogo/controllerJogo.js')
 const controllerGenero = require('./controller/genero/controllerGenero.js')
 const controllerEmpresa = require('./controller/empresa/controllerEmpresa.js')
-
+const controllerPlataforma = require('./controller/plataforma/controllerPlataforma.js');
+const controllerUsuario = require('./controller/usuario/controllerUsuario.js');
 //Estabelecendo o formato de dados que devera chegar no body na requisição (POST ou PUT)
 const bodyParserJSON = bodyParser.json()
 
@@ -125,7 +126,7 @@ app.post('/v1/controle-jogos/genero', cors(), bodyParserJSON, async function (re
         })
     }
 })
-//atualizar genero
+//listarGenero
 app.get('/v1/controle-jogos/listaGeneros', cors(), async function (request, response) {
     let resultGenero = await controllerGenero.listarGenero();
 
@@ -291,16 +292,270 @@ app.delete('/v1/controle-jogos/empresa/:id', cors(), async function (request, re
         return response.status(400).json({ status: false, status_code: 400, message: "ID inválido. Deve ser um número." });
     }
 
-    let resultEmpresa = await controllerEmpresa.excluirEmpresa(id);
+    let resultEmpresa = await controllerEmpresa.excluirEmpresa(id)
 
     // Verifica se o resultado possui um status_code válido
     if (resultEmpresa && resultEmpresa.status_code) {
-        response.status(resultEmpresa.status_code).json(resultEmpresa);
+        response.status(resultEmpresa.status_code).json(resultEmpresa)
     } else {
         response.status(404).json({
             status: false,
             status_code: 404,
             message: "Empresa não encontrada."
+        })
+    }
+})
+
+//Plataforma
+// Inserir uma nova plataforma
+app.post('/v1/controle-jogos/plataforma', cors(), bodyParserJSON, async function (request, response) {
+    // Recebe o content type para validar o tipo de dados da requisição
+    let contentType = request.headers['content-type'];
+    let plataforma = request.body;
+
+    console.log('Dados recebidos no endpoint:', plataforma);
+
+    // Chama a função para inserir a plataforma
+    try {
+        let resultPlataforma = await controllerPlataforma.insertPlataforma(plataforma, contentType);
+
+        // Verifica se o resultado possui um status_code válido
+        if (resultPlataforma && resultPlataforma.status_code) {
+            response.status(resultPlataforma.status_code).json(resultPlataforma);
+        } else {
+            // Retorna um erro genérico caso o status_code esteja indefinido
+            response.status(500).json({
+                status: false,
+                status_code: 500,
+                message: "Erro interno no servidor ao processar a requisição.",
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao inserir plataforma:', error);
+        response.status(500).json({
+            status: false,
+            status_code: 500,
+            message: "Erro interno no servidor ao processar a requisição."
         });
     }
 });
+
+// Listar todas as plataformas
+app.get('/v1/controle-jogos/plataformas', cors(), async function (request, response) {
+    let resultPlataforma = await controllerPlataforma.listarPlataformas();
+
+    // Verifica se o resultado possui um status_code válido
+    if (resultPlataforma && resultPlataforma.status_code) {
+        response.status(resultPlataforma.status_code).json(resultPlataforma);
+    } else {
+        // Retorna um erro genérico caso o status_code esteja indefinido
+        response.status(500).json({
+            status: false,
+            status_code: 500,
+            message: "Erro interno no servidor ao processar a requisição.",
+        });
+    }
+});
+
+// Buscar uma plataforma pelo ID
+app.get('/v1/controle-jogos/plataforma/:id', cors(), async function (request, response) {
+    const id = parseInt(request.params.id);
+
+    // Validação para garantir que o ID é um número válido
+    if (isNaN(id) || id <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "ID inválido. Deve ser um número positivo."
+        });
+    }
+
+    let resultPlataforma = await controllerPlataforma.buscarPlataforma(id);
+
+    // Verifica se o resultado possui um status_code válido
+    if (resultPlataforma && resultPlataforma.status_code) {
+        response.status(resultPlataforma.status_code).json(resultPlataforma);
+    } else {
+        response.status(404).json({
+            status: false,
+            status_code: 404,
+            message: "Plataforma não encontrada."
+        });
+    }
+});
+
+// Atualizar uma plataforma pelo ID
+app.put('/v1/controle-jogos/AtualizarPlataforma/:id', cors(), bodyParserJSON, async function (request, response) {
+    // Recebe o content type para validar o tipo de dados da requisição
+    let contentType = request.headers['content-type'];
+    // Recebe o id da plataforma
+    let idPlataforma = parseInt(request.params.id);
+    // Recebe os dados da plataforma encaminhado no body da requisição
+    let dadosBody = request.body;
+
+    // Validação para garantir que o ID é um número
+    if (isNaN(idPlataforma)) {
+        return response.status(400).json({ status: false, status_code: 400, message: "ID inválido. Deve ser um número." });
+    }
+
+    try {
+        let resultPlataforma = await controllerPlataforma.atualizarPlataforma(dadosBody, idPlataforma, contentType);
+        response.status(resultPlataforma.status_code).json(resultPlataforma);
+    } catch (error) {
+        console.error(`Erro ao atualizar plataforma com ID ${idPlataforma}:`, error);
+        response.status(500).json({
+            status: false,
+            status_code: 500,
+            message: "Erro interno no servidor ao processar a requisição."
+        });
+    }
+});
+// Deletar uma plataforma pelo ID
+app.delete('/v1/controle-jogos/plataforma/:id', cors(), async function (request, response) {
+    const id = parseInt(request.params.id);
+
+    // Validação para garantir que o ID é um número válido
+    if (isNaN(id)) {
+        return response.status(400).json({ status: false, status_code: 400, message: "ID inválido. Deve ser um número." });
+    }
+
+    let resultPlataforma = await controllerPlataforma.excluirPlataforma(id);
+
+    // Verifica se o resultado possui um status_code válido
+    if (resultPlataforma && resultPlataforma.status_code) {
+        response.status(resultPlataforma.status_code).json(resultPlataforma);
+    } else {
+        response.status(404).json({
+            status: false,
+            status_code: 404,
+            message: "Plataforma não encontrada."
+        })
+    }
+})
+
+//Usuario
+// Inserir um novo usuário
+app.post('/v1/controle-jogos/usuario', cors(), bodyParserJSON, async function (request, response) {
+    // Recebe o content type para validar o tipo de dados da requisição
+    let contentType = request.headers['content-type'];
+    let usuario = request.body;
+
+    console.log('Dados recebidos no endpoint:', usuario);
+
+    // Chama a função para inserir o usuário
+    try {
+        let resultUsuario = await controllerUsuario.insertUsuario(usuario, contentType);
+
+        // Verifica se o resultado possui um status_code válido
+        if (resultUsuario && resultUsuario.status_code) {
+            response.status(resultUsuario.status_code).json(resultUsuario);
+        } else {
+            // Retorna um erro genérico caso o status_code esteja indefinido
+            response.status(500).json({
+                status: false,
+                status_code: 500,
+                message: "Erro interno no servidor ao processar a requisição.",
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao inserir usuário:', error);
+        response.status(500).json({
+            status: false,
+            status_code: 500,
+            message: "Erro interno no servidor ao processar a requisição."
+        })
+    }
+})
+// Listar todos os usuários
+app.get('/v1/controle-jogos/usuarios', cors(), async function (request, response) {
+    let resultUsuario = await controllerUsuario.listarUsuarios();
+
+    // Verifica se o resultado possui um status_code válido
+    if (resultUsuario && resultUsuario.status_code) {
+        response.status(resultUsuario.status_code).json(resultUsuario);
+    } else {
+        // Retorna um erro genérico caso o status_code esteja indefinido
+        response.status(500).json({
+            status: false,
+            status_code: 500,
+            message: "Erro interno no servidor ao processar a requisição.",
+        });
+    }
+});
+
+// Buscar um usuário pelo ID
+app.get('/v1/controle-jogos/usuario/:id', cors(), async function (request, response) {
+    const id = parseInt(request.params.id);
+
+    // Validação para garantir que o ID é um número válido
+    if (isNaN(id) || id <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "ID inválido. Deve ser um número positivo."
+        });
+    }
+
+    let resultUsuario = await controllerUsuario.buscarUsuario(id);
+
+    // Verifica se o resultado possui um status_code válido
+    if (resultUsuario && resultUsuario.status_code) {
+        response.status(resultUsuario.status_code).json(resultUsuario);
+    } else {
+        response.status(404).json({
+            status: false,
+            status_code: 404,
+            message: "Usuário não encontrado."
+        })
+    }
+})
+
+// Atualizar um usuário pelo ID
+app.put('/v1/controle-jogos/usuarioAtualizar/:id', cors(), bodyParserJSON, async function (request, response) {
+    // Recebe o content type para validar o tipo de dados da requisição
+    let contentType = request.headers['content-type'];
+    // Recebe o id do usuário
+    let idUsuario = parseInt(request.params.id);
+    // Recebe os dados do usuário encaminhado no body da requisição
+    let dadosBody = request.body;
+
+    // Validação para garantir que o ID é um número
+    if (isNaN(idUsuario)) {
+        return response.status(400).json({ status: false, status_code: 400, message: "ID inválido. Deve ser um número." });
+    }
+
+    try {
+        let resultUsuario = await controllerUsuario.atualizarUsuario(dadosBody, idUsuario, contentType);
+        response.status(resultUsuario.status_code).json(resultUsuario);
+    } catch (error) {
+        console.error(`Erro ao atualizar usuário com ID ${idUsuario}:`, error);
+        response.status(500).json({
+            status: false,
+            status_code: 500,
+            message: "Erro interno no servidor ao processar a requisição."
+        })
+    }
+})
+
+// Deletar um usuário pelo ID
+app.delete('/v1/controle-jogos/usuarioDeletar/:id', cors(), async function (request, response) {
+    const id = parseInt(request.params.id);
+
+    // Validação para garantir que o ID é um número válido
+    if (isNaN(id)) {
+        return response.status(400).json({ status: false, status_code: 400, message: "ID inválido. Deve ser um número." });
+    }
+
+    let resultUsuario = await controllerUsuario.excluirUsuario(id);
+
+    // Verifica se o resultado possui um status_code válido
+    if (resultUsuario && resultUsuario.status_code) {
+        response.status(resultUsuario.status_code).json(resultUsuario);
+    } else {
+        response.status(404).json({
+            status: false,
+            status_code: 404,
+            message: "Usuário não encontrado."
+        })
+    }
+})
