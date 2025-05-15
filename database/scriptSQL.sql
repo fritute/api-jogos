@@ -24,8 +24,8 @@ CREATE TABLE tbl_genero (
   id_genero INT NOT NULL AUTO_INCREMENT,
   tbl_nome_id_nome INT NOT NULL,
   nome_genero VARCHAR(70) NULL,
-  PRIMARY KEY (id_genero))
-;
+  PRIMARY KEY (id_genero));
+  
 CREATE TABLE tbl_jogo_genero (
     id_jogo_genero INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     id INT NOT NULL,
@@ -37,6 +37,7 @@ CREATE TABLE tbl_jogo_genero (
         FOREIGN KEY (id_categoria)
         REFERENCES tbl_genero (id_genero)
 );
+
 CREATE TABLE tbl_usuario (
     id_usuario INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(70) NULL,
@@ -78,6 +79,7 @@ CREATE TABLE tbl_plataforma_jogo (
         FOREIGN KEY (id_plataforma)
         REFERENCES tbl_plataforma (id_plataforma)
 );
+
 CREATE TABLE tbl_empresa (
   id_empresa primary key INT NOT NULL AUTO_INCREMENT,
   nome VARCHAR(45) NOT NULL,

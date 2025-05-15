@@ -33,6 +33,8 @@ const controllerGenero = require('./controller/genero/controllerGenero.js')
 const controllerEmpresa = require('./controller/empresa/controllerEmpresa.js')
 const controllerPlataforma = require('./controller/plataforma/controllerPlataforma.js');
 const controllerUsuario = require('./controller/usuario/controllerUsuario.js');
+const controllerJogoGenero = require('./controller/jogo_genero/controllerJogoGenero.js');
+const controllerAvaliacao = require('./controller/avaliacao/controllerAvaliacao.js');
 //Estabelecendo o formato de dados que devera chegar no body na requisição (POST ou PUT)
 const bodyParserJSON = bodyParser.json()
 
@@ -559,3 +561,208 @@ app.delete('/v1/controle-jogos/usuarioDeletar/:id', cors(), async function (requ
         })
     }
 })
+
+// Inserir um relacionamento entre jogo e gênero
+app.post('/v1/controle-jogos/jogo-genero', cors(), bodyParserJSON, async function (request, response) {
+    const { id, id_categoria } = request.body;
+
+    if (!id || isNaN(id) || id <= 0 || !id_categoria || isNaN(id_categoria) || id_categoria <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "IDs inválidos. Ambos devem ser números positivos."
+        });
+    }
+
+    let result = await controllerJogoGenero.insertJogoGenero(id, id_categoria);
+
+    response.status(result.status_code).json(result);
+});
+
+// Deletar um relacionamento entre jogo e gênero
+app.delete('/v1/controle-jogos/jogo-genero', cors(), bodyParserJSON, async function (request, response) {
+    const { id, id_categoria } = request.body;
+
+    if (!id || isNaN(id) || id <= 0 || !id_categoria || isNaN(id_categoria) || id_categoria <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "IDs inválidos. Ambos devem ser números positivos."
+        });
+    }
+
+    let result = await controllerJogoGenero.deleteJogoGenero(id, id_categoria);
+
+    response.status(result.status_code).json(result);
+});
+
+// Listar todos os gêneros de um jogo
+app.get('/v1/controle-jogos/jogo/:id/generos', cors(), async function (request, response) {
+    const id = parseInt(request.params.id);
+
+    if (isNaN(id) || id <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "ID do jogo inválido. Deve ser um número positivo."
+        });
+    }
+
+    let result = await controllerJogoGenero.listarGenerosPorJogo(id);
+
+    response.status(result.status_code).json(result);
+});
+
+// Listar todos os jogos de um gênero
+app.get('/v1/controle-jogos/genero/:id/jogos', cors(), async function (request, response) {
+    const id_categoria = parseInt(request.params.id);
+
+    if (isNaN(id_categoria) || id_categoria <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "ID do gênero inválido. Deve ser um número positivo."
+        });
+    }
+
+    let result = await controllerJogoGenero.listarJogosPorGenero(id_categoria);
+
+    response.status(result.status_code).json(result);
+});
+
+// Atualizar um relacionamento entre jogo e gênero
+app.put('/v1/controle-jogos/jogo-genero', cors(), bodyParserJSON, async function (request, response) {
+    const { idAntigo, idCategoriaAntiga, idNovo, idCategoriaNova } = request.body;
+
+    if (
+        !idAntigo || isNaN(idAntigo) || idAntigo <= 0 ||
+        !idCategoriaAntiga || isNaN(idCategoriaAntiga) || idCategoriaAntiga <= 0 ||
+        !idNovo || isNaN(idNovo) || idNovo <= 0 ||
+        !idCategoriaNova || isNaN(idCategoriaNova) || idCategoriaNova <= 0
+    ) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "IDs inválidos. Todos devem ser números positivos."
+        });
+    }
+
+    let result = await controllerJogoGenero.atualizarJogoGenero(idAntigo, idCategoriaAntiga, idNovo, idCategoriaNova);
+
+    response.status(result.status_code).json(result);
+});
+
+
+
+
+
+//avaliacao
+
+
+
+
+
+// Inserir uma avaliação
+app.post('/v1/controle-jogos/avaliacao', cors(), bodyParserJSON, async function (request, response) {
+    try {
+        const { comentario, pontuacao, id_jogo } = request.body;
+
+        // Validação dos campos obrigatórios
+        if (!comentario || typeof comentario !== 'string' || comentario.trim() === '') {
+            return response.status(400).json({
+                status: false,
+                status_code: 400,
+                message: "O campo 'comentario' é obrigatório e deve ser uma string válida."
+            });
+        }
+
+        if (!pontuacao || isNaN(pontuacao) || pontuacao <= 0 || pontuacao > 10) {
+            return response.status(400).json({
+                status: false,
+                status_code: 400,
+                message: "O campo 'pontuacao' é obrigatório e deve ser um número entre 1 e 10."
+            });
+        }
+
+        if (!id_jogo || isNaN(id_jogo) || id_jogo <= 0) {
+            return response.status(400).json({
+                status: false,
+                status_code: 400,
+                message: "O campo 'id_jogo' é obrigatório e deve ser um número positivo."
+            });
+        }
+
+        // Chama a controller para inserir a avaliação
+        let result = await controllerAvaliacao.inserirAvaliacao(comentario, pontuacao, id_jogo);
+
+        // Retorna a resposta da controller
+        response.status(result.status_code).json(result);
+    } catch (error) {
+        console.error('Erro ao inserir avaliação:', error);
+        response.status(500).json({
+            status: false,
+            status_code: 500,
+            message: "Erro interno no servidor ao processar a requisição."
+        });
+    }
+})
+
+// Atualizar uma avaliação
+app.put('/v1/controle-jogos/avaliacao/:id', cors(), bodyParserJSON, async function (request, response) {
+    const id_avaliacao = parseInt(request.params.id);
+    const { comentario, pontuacao, id_jogo } = request.body;
+
+    if (!id_avaliacao || isNaN(id_avaliacao) || id_avaliacao <= 0 || !comentario || !pontuacao || !id_jogo || isNaN(pontuacao) || isNaN(id_jogo) || pontuacao <= 0 || id_jogo <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "Campos obrigatórios inválidos. Verifique os dados enviados."
+        });
+    }
+
+    let result = await controllerAvaliacao.atualizarAvaliacao(id_avaliacao, comentario, pontuacao, id_jogo);
+
+    response.status(result.status_code).json(result);
+});
+
+// Deletar uma avaliação
+app.delete('/v1/controle-jogos/avaliacao/:id', cors(), async function (request, response) {
+    const id_avaliacao = parseInt(request.params.id);
+
+    if (!id_avaliacao || isNaN(id_avaliacao) || id_avaliacao <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "ID da avaliação inválido. Deve ser um número positivo."
+        });
+    }
+
+    let result = await controllerAvaliacao.deletarAvaliacao(id_avaliacao);
+
+    response.status(result.status_code).json(result);
+});
+
+// Listar todas as avaliações de um jogo
+app.get('/v1/controle-jogos/jogo/:id/avaliacoes', cors(), async function (request, response) {
+    const id_jogo = parseInt(request.params.id);
+
+    if (!id_jogo || isNaN(id_jogo) || id_jogo <= 0) {
+        return response.status(400).json({
+            status: false,
+            status_code: 400,
+            message: "ID do jogo inválido. Deve ser um número positivo."
+        });
+    }
+
+    let result = await controllerAvaliacao.listarAvaliacoesPorJogo(id_jogo);
+
+    response.status(result.status_code).json(result);
+});
+
+// Listar todas as avaliações
+app.get('/v1/controle-jogos/avaliacoes', cors(), async function (request, response) {
+    let result = await controllerAvaliacao.listarTodasAvaliacoes();
+
+    response.status(result.status_code).json(result);
+});
+
